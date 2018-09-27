@@ -1,0 +1,2 @@
+/usr/bin/ar qc libtest_embed_lib.a  CMakeFiles/test_embed_lib.dir/home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/tests/test_cmake_build/embed.cpp.o
+/usr/bin/ranlib libtest_embed_lib.a

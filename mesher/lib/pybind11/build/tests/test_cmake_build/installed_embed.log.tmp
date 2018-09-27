@@ -1,0 +1,49 @@
+[OUTPUT] 
+Internal cmake changing into directory: /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed
+======== CMake output     ======
+The CXX compiler identification is GNU 5.4.0
+Check for working CXX compiler: /usr/bin/c++
+Configuring
+Check for working CXX compiler: /usr/bin/c++ -- works
+Detecting CXX compiler ABI info
+Configuring
+Detecting CXX compiler ABI info - done
+Detecting CXX compile features
+Configuring
+Configuring
+Configuring
+Detecting CXX compile features - done
+Found PythonInterp: /home/admin-suz/anaconda3/bin/python3.6 (found version "3.6.3") 
+Found PythonLibs: /home/admin-suz/anaconda3/lib/libpython3.6m.so
+Found pybind11 v2.3.dev0: /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/mock_install/include;/home/admin-suz/anaconda3/include/python3.6m
+Configuring
+Configuring done
+Generating
+Generating done
+Build files have been written to: /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed
+======== End CMake output ======
+Change Dir: /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed
+
+Run Build Command:"/usr/bin/make" "check"
+make[4] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[5] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[6] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[7] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+Scanning dependencies of target test_cmake_build
+make[7] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[7] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+[ 50%] Building CXX object CMakeFiles/test_cmake_build.dir/home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/tests/test_cmake_build/embed.cpp.o
+[100%] Linking CXX executable test_cmake_build
+make[7] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+[100%] Built target test_cmake_build
+make[7] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+Scanning dependencies of target check
+make[7] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[7] : on entre dans le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+embed.cpp imports, runs, and adds: 1 + 2 = 3
+make[7] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+[100%] Built target check
+make[6] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[5] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+make[4] : on quitte le répertoire « /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/lib/pybind11/build/tests/test_cmake_build/installed_embed »
+
