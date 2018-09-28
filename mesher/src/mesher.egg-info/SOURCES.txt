@@ -1,7 +1,0 @@
-setup.py
-src/mesher/__init__.py
-src/mesher.egg-info/PKG-INFO
-src/mesher.egg-info/SOURCES.txt
-src/mesher.egg-info/dependency_links.txt
-src/mesher.egg-info/not-zip-safe
-src/mesher.egg-info/top_level.txt
