@@ -12,6 +12,8 @@
 #include <CGAL/lloyd_optimize_mesh_2.h>
 
 #include <boost/lexical_cast.hpp>
+#include <iterator>
+#include <cstddef>
 
 namespace py = pybind11;
 
@@ -33,6 +35,8 @@ public:
     typedef T value_type;
     typedef T& reference;
     typedef T* pointer;
+    typedef std::input_iterator_tag iterator_category;
+    typedef std::ptrdiff_t difference_type;
 
     explicit TypedInputIterator(py::iterator& py_iter):
             py_iter_(py_iter){}

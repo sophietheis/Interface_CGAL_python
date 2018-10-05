@@ -1,11 +1,7 @@
 from mesher.cgal_mesher import ConstrainedDelaunayTriangulation as CDT
-from mesher.cgal_mesher import (Point,
-                                Mesher,
-                                Criteria)
-from mesher.cgal_mesher import (make_conforming_delaunay,
-                                make_conforming_gabriel,
-                                lloyd_optimize)
-
+from mesher.cgal_mesher import (
+    Point, Mesher, make_conforming_delaunay, make_conforming_gabriel, Criteria, lloyd_optimize
+)
 
 def main():
     cdt = CDT()
@@ -29,18 +25,6 @@ def main():
     vq = cdt.insert(Point(435, 100))
     vr = cdt.insert(Point(100, 100))
 
-    vs = cdt.insert(Point(349, 236))
-    vt = cdt.insert(Point(370, 236))
-    vu = cdt.insert(Point(370, 192))
-    vv = cdt.insert(Point(403, 192))
-    vw = cdt.insert(Point(403, 158))
-    vx = cdt.insert(Point(349, 158))
-
-    vy = cdt.insert(Point(501, 336))
-    vz = cdt.insert(Point(533, 336))
-    v1 = cdt.insert(Point(519, 307))
-    v2 = cdt.insert(Point(484, 307))
-
     cdt.insert_constraint(va, vb)
     cdt.insert_constraint(vb, vc)
     cdt.insert_constraint(vc, vd)
@@ -60,6 +44,13 @@ def main():
     cdt.insert_constraint(vq, vr)
     cdt.insert_constraint(vr, va)
 
+    vs = cdt.insert(Point(349, 236))
+    vt = cdt.insert(Point(370, 236))
+    vu = cdt.insert(Point(370, 192))
+    vv = cdt.insert(Point(403, 192))
+    vw = cdt.insert(Point(403, 158))
+    vx = cdt.insert(Point(349, 158))
+
     cdt.insert_constraint(vs, vt)
     cdt.insert_constraint(vt, vu)
     cdt.insert_constraint(vu, vv)
@@ -67,12 +58,17 @@ def main():
     cdt.insert_constraint(vw, vx)
     cdt.insert_constraint(vx, vs)
 
+    vy = cdt.insert(Point(501, 336))
+    vz = cdt.insert(Point(533, 336))
+    v1 = cdt.insert(Point(519, 307))
+    v2 = cdt.insert(Point(484, 307))
+
     cdt.insert_constraint(vy, vz)
     cdt.insert_constraint(vz, v1)
     cdt.insert_constraint(v1, v2)
     cdt.insert_constraint(v2, vy)
 
-    print("number of vertices:", cdt.number_of_vertices())
+    print("Number of vertices:", cdt.number_of_vertices())
 
     mesher = Mesher(cdt)
     seeds = [
@@ -80,8 +76,6 @@ def main():
         Point(379, 172),
     ]
     mesher.seeds_from(seeds)
-
-    make_conforming_delaunay(seeds)
 
     make_conforming_delaunay(cdt)
     print("Number of vertices:", cdt.number_of_vertices())
