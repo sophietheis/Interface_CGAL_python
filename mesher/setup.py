@@ -77,7 +77,8 @@ setup(
     long_description='',
     packages=find_packages('src'),
     package_dir={'': 'src'},
-    ext_modules=[CMakeExtension('mesher/cgal_mesher')],
+    ext_modules=[CMakeExtension('mesher/cgal_mesher'),
+                 CMakeExtension('mesher/cgal_polyhedron')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 

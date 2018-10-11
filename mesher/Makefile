@@ -125,6 +125,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named cgal_polyhedron
+
+# Build rule for target.
+cgal_polyhedron: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cgal_polyhedron
+.PHONY : cgal_polyhedron
+
+# fast build rule for target.
+cgal_polyhedron/fast:
+	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/build
+.PHONY : cgal_polyhedron/fast
+
+#=============================================================================
 # Target rules for targets named cgal_mesher
 
 # Build rule for target.
@@ -528,6 +541,33 @@ src/mesher/cgal_mesher.cpp.s:
 	$(MAKE) -f CMakeFiles/cgal_mesher.dir/build.make CMakeFiles/cgal_mesher.dir/src/mesher/cgal_mesher.cpp.s
 .PHONY : src/mesher/cgal_mesher.cpp.s
 
+src/mesher/cgal_polyhedron.o: src/mesher/cgal_polyhedron.cpp.o
+
+.PHONY : src/mesher/cgal_polyhedron.o
+
+# target to build an object file
+src/mesher/cgal_polyhedron.cpp.o:
+	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/src/mesher/cgal_polyhedron.cpp.o
+.PHONY : src/mesher/cgal_polyhedron.cpp.o
+
+src/mesher/cgal_polyhedron.i: src/mesher/cgal_polyhedron.cpp.i
+
+.PHONY : src/mesher/cgal_polyhedron.i
+
+# target to preprocess a source file
+src/mesher/cgal_polyhedron.cpp.i:
+	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/src/mesher/cgal_polyhedron.cpp.i
+.PHONY : src/mesher/cgal_polyhedron.cpp.i
+
+src/mesher/cgal_polyhedron.s: src/mesher/cgal_polyhedron.cpp.s
+
+.PHONY : src/mesher/cgal_polyhedron.s
+
+# target to generate assembly for a file
+src/mesher/cgal_polyhedron.cpp.s:
+	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/src/mesher/cgal_polyhedron.cpp.s
+.PHONY : src/mesher/cgal_polyhedron.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -536,6 +576,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... cgal_polyhedron"
 	@echo "... cgal_mesher"
 	@echo "... ContinuousSubmit"
 	@echo "... ContinuousCoverage"
@@ -569,6 +610,9 @@ help:
 	@echo "... src/mesher/cgal_mesher.o"
 	@echo "... src/mesher/cgal_mesher.i"
 	@echo "... src/mesher/cgal_mesher.s"
+	@echo "... src/mesher/cgal_polyhedron.o"
+	@echo "... src/mesher/cgal_polyhedron.i"
+	@echo "... src/mesher/cgal_polyhedron.s"
 .PHONY : help
 
 
