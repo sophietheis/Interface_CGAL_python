@@ -8,10 +8,17 @@
 #include <algorithm>
 #include <iostream>
 
-//#include <CGAL/IO/OBJ_reader.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Polyhedron_traits_3.h>
+#include <CGAL/Polyhedron_items_3.h>
+#include <CGAL/Polyhedron_3.h>
 
 namespace py = pybind11;
 
+using K             = CGAL::Exact_predicates_inexact_constructions_kernel;
+using P_t           = CGAL::Polyhedron_traits_3<K>;
+using P_i           = CGAL::Polyhedron_items_3;
+using Polyhedron    = CGAL::Polyhedron_3<P_t, P_i>;
 
 
 
@@ -25,9 +32,7 @@ int get_first_integer(const char *v)
 }
 
 std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
-//bool load_obj(std::string filename)
 {
-    //std::string filename="embryo.obj";
     // two vectors to hold point coordinates and
     // triangle vertex indices
     std::vector<double> coords;
@@ -68,6 +73,9 @@ std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
 PYBIND11_MODULE(cgal_mesher, m)
 {
     m.def("load_obj", &load_obj);
+
+    py::class_<Polyhedron>(m, "Polyhedron")
+                .def(py::init<P_t&>());
 
 
 }
