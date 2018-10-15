@@ -13,8 +13,8 @@ def main():
     print(type(coords))
 
     print(coords[0], coords[1], coords[2])
-    print(coords[3], coords[4], coords[5])
-    print(coords[6], coords[7], coords[8])
+
+    print(coords[-3], coords[-2], coords[-1])
 
     print(tris[-3], tris[-2], tris[-1])
     # Build an empty polyhedron

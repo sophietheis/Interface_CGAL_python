@@ -18,6 +18,7 @@
 
 namespace py = pybind11;
 
+using boost::lexical_cast;
 
 using K             = CGAL::Simple_cartesian<double>;
 using P_t           = CGAL::Polyhedron_traits_3<K>;
@@ -35,13 +36,27 @@ int get_first_integer(const char *v)
     return i;
 }
 
-std::tuple<std::vector<double>, std::vector<std::vector<std::size_t> >> load_obj(std::string filename)
+#include <sstream>
+#include <string>
+template<typename T>
+T StringToNumber(const std::string& numberAsString)
 {
-    // two vectors to hold point coordinates and
-    // triangle vertex indices
-    std::vector<double> coords;
-    //std::vector<int>    tris;
-    std::vector<std::vector<std::size_t> > faces;
+  T valor;
+
+  std::stringstream stream(numberAsString);
+  stream >> valor;
+  if (stream.fail()) {
+     std::runtime_error e(numberAsString);
+     throw e;
+  }
+  return valor;
+}
+
+
+std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::size_t> >> load_obj(std::string filename)
+{
+    std::vector<std::vector<double>> points;
+    std::vector<std::vector<std::size_t>> faces;
 
 
     double x, y, z;
@@ -57,10 +72,16 @@ std::tuple<std::vector<double>, std::vector<std::vector<std::size_t> >> load_obj
     {
         if (line[0] == 'v' && line[1]!='n' )
         {
-            sscanf( line, "%*s%lf%lf%lf", &x, &y, &z );
-            coords.push_back( x );
-            coords.push_back( y );
-            coords.push_back( z );
+            std::string str;
+            str =  std::string(line);
+            std::istringstream tokenStream(str);
+            std::string token;
+            points.push_back(std::vector<double>());
+            while (std::getline(tokenStream, token, ' '))
+            {
+                if (token[0] != 'v')
+                    points.back().push_back(StringToNumber<double>(token));
+            }
         }
         else if(line[0] == 'f')
         {
@@ -76,7 +97,7 @@ std::tuple<std::vector<double>, std::vector<std::vector<std::size_t> >> load_obj
             }
         }
     }
-    return std::make_tuple(coords,faces);
+    return std::make_tuple(points,faces);
 
 }
 
