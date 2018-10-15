@@ -35,12 +35,13 @@ int get_first_integer(const char *v)
     return i;
 }
 
-std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
+std::tuple<std::vector<double>, std::vector<std::vector<std::size_t> >> load_obj(std::string filename)
 {
     // two vectors to hold point coordinates and
     // triangle vertex indices
     std::vector<double> coords;
-    std::vector<int>    tris;
+    //std::vector<int>    tris;
+    std::vector<std::vector<std::size_t> > faces;
 
 
     double x, y, z;
@@ -63,13 +64,19 @@ std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
         }
         else if(line[0] == 'f')
         {
-            sscanf( line, "%*s%s%s%s", v0, v1, v2 );
-            tris.push_back( get_first_integer( v0 )-1 );
-            tris.push_back( get_first_integer( v1 )-1 );
-            tris.push_back( get_first_integer( v2 )-1 );
+            std::string str;
+            str =  std::string(line);
+            std::istringstream iss(str.substr(1));
+            int i;
+            faces.push_back( std::vector<std::size_t>() );
+            while (iss >> i)
+            {
+                faces.back().push_back(i-1);
+                iss.ignore(256, ' ');
+            }
         }
     }
-    return std::make_tuple(coords,tris);
+    return std::make_tuple(coords,faces);
 
 }
 
