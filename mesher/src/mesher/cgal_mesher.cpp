@@ -8,19 +8,23 @@
 #include <algorithm>
 #include <iostream>
 
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+//#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Simple_cartesian.h>
 #include <CGAL/Polyhedron_traits_3.h>
 #include <CGAL/Polyhedron_items_3.h>
 #include <CGAL/Polyhedron_3.h>
+#include <CGAL/Polyhedron_incremental_builder_3.h>
+//#include "polyhedron_builder.h"
 
 namespace py = pybind11;
 
-using K             = CGAL::Exact_predicates_inexact_constructions_kernel;
+
+using K             = CGAL::Simple_cartesian<double>;
 using P_t           = CGAL::Polyhedron_traits_3<K>;
 using P_i           = CGAL::Polyhedron_items_3;
 using Polyhedron    = CGAL::Polyhedron_3<P_t, P_i>;
-
-
+//using HalfedgeDS    = Polyhedron::HalfedgeDS;
+using Point_3       = Polyhedron::Point_3;
 
 int get_first_integer(const char *v)
 {
@@ -50,7 +54,7 @@ std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
 
     while(fgets(line, 1024, f))
     {
-        if (line[0] == 'v' )
+        if (line[0] == 'v' && line[1]!='n' )
         {
             sscanf( line, "%*s%lf%lf%lf", &x, &y, &z );
             coords.push_back( x );
@@ -69,13 +73,72 @@ std::tuple<std::vector<double>, std::vector<int>> load_obj(std::string filename)
 
 }
 
+// Didn't work...
+/*template<class HDS>
+class Polyhedron_builder : public CGAL::Modifier_base<HDS> {
+public:
+    std::vector<double> &coords;
+    std::vector<int>    &tris;
+    Polyhedron_builder( std::vector<double> &_coords, std::vector<int> &_tris ) : coords(_coords), tris(_tris) {}
+    void operator()( HDS& hds) {
+        typedef typename HDS::Vertex   Vertex;
+        typedef typename Vertex::Point Point;
+
+        // create a cgal incremental builder
+        CGAL::Polyhedron_incremental_builder_3<HDS> B( hds, true);
+        B.begin_surface( coords.size()/3, tris.size()/3 );
+
+        // add the polyhedron vertices
+        for( int i=0; i<(int)coords.size(); i+=3 ){
+            B.add_vertex( Point( coords[i+0], coords[i+1], coords[i+2] ) );
+        }
+
+        // add the polyhedron triangles
+        for( int i=0; i<(int)tris.size(); i+=3 ){
+            B.begin_facet();
+            B.add_vertex_to_facet( tris[i+0] );
+            B.add_vertex_to_facet( tris[i+1] );
+            B.add_vertex_to_facet( tris[i+2] );
+            B.end_facet();
+        }
+
+        // finish up the surface
+        B.end_surface();
+    }
+};*/
+
 
 PYBIND11_MODULE(cgal_mesher, m)
 {
     m.def("load_obj", &load_obj);
 
+    /*py::class_<Polyhedron_builder>(m,"Polyhedron_builder")
+                //.def(py::init<std::vector<double>, std::vector<int>>())
+    ;*/
+
+    py::class_<Point_3>(m,"Point_3")
+                .def(py::init<int,int,int>(), py::arg("x"), py::arg("y"), py::arg("z"))
+                .def(py::init<float,float,float>(), py::arg("x"), py::arg("y"), py::arg("z"))
+                .def_property_readonly("x", &Point_3::x)
+                .def_property_readonly("y", &Point_3::y)
+                .def_property_readonly("z", &Point_3::z)
+
+    ;
+
     py::class_<Polyhedron>(m, "Polyhedron")
-                .def(py::init<P_t&>());
+                .def(py::init<P_t&>())
+                .def("make_triangle",
+                     [](Polyhedron& p, const Point_3& p1,const Point_3& p2,const Point_3& p3)
+                     {
+                        p.make_triangle(p1, p2, p3);
+                     })
+
+                /*.def("delegate", [](Polyhedron & p, Modifier_base<HDS>& modifier)
+                     {
+                        p.delegate(modifier);
+                     })*/
+    ;
+
 
 
 }
