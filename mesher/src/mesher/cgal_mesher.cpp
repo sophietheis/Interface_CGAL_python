@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <iostream>
 
@@ -14,18 +15,17 @@
 #include <CGAL/Polyhedron_items_3.h>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Polyhedron_incremental_builder_3.h>
-//#include "polyhedron_builder.h"
 
 namespace py = pybind11;
 
 using boost::lexical_cast;
 
-using K             = CGAL::Simple_cartesian<double>;
-using P_t           = CGAL::Polyhedron_traits_3<K>;
-using P_i           = CGAL::Polyhedron_items_3;
-using Polyhedron    = CGAL::Polyhedron_3<P_t, P_i>;
-//using HalfedgeDS    = Polyhedron::HalfedgeDS;
-using Point_3       = Polyhedron::Point_3;
+using K                 = CGAL::Simple_cartesian<double>;
+using P_t               = CGAL::Polyhedron_traits_3<K>;
+using P_i               = CGAL::Polyhedron_items_3;
+using Polyhedron        = CGAL::Polyhedron_3<P_t, P_i>;
+using Point_3           = K::Point_3;
+using Halfedge_handle   = Polyhedron::Halfedge_handle;
 
 int get_first_integer(const char *v)
 {
@@ -36,8 +36,7 @@ int get_first_integer(const char *v)
     return i;
 }
 
-#include <sstream>
-#include <string>
+
 template<typename T>
 T StringToNumber(const std::string& numberAsString)
 {
@@ -102,7 +101,7 @@ std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::size_t
 }
 
 // Didn't work...
-/*template<class HDS>
+template<class HDS>
 class Polyhedron_builder : public CGAL::Modifier_base<HDS> {
 public:
     std::vector<double> &coords;
@@ -133,7 +132,7 @@ public:
         // finish up the surface
         B.end_surface();
     }
-};*/
+};
 
 
 PYBIND11_MODULE(cgal_mesher, m)
@@ -141,30 +140,56 @@ PYBIND11_MODULE(cgal_mesher, m)
     m.def("load_obj", &load_obj);
 
     /*py::class_<Polyhedron_builder>(m,"Polyhedron_builder")
-                //.def(py::init<std::vector<double>, std::vector<int>>())
+                .def(py::init<>())
     ;*/
+    py::class_<Halfedge_handle>(m,"Halfedge_handle")
+                .def(py::init<>())
+    ;
 
     py::class_<Point_3>(m,"Point_3")
                 .def(py::init<int,int,int>(), py::arg("x"), py::arg("y"), py::arg("z"))
                 .def(py::init<float,float,float>(), py::arg("x"), py::arg("y"), py::arg("z"))
+
                 .def_property_readonly("x", &Point_3::x)
                 .def_property_readonly("y", &Point_3::y)
                 .def_property_readonly("z", &Point_3::z)
 
+                .def("__repr__",
+                     [](const Point_3 &p)
+                     {
+                        std::string s("Point(");
+                        s += boost::lexical_cast<std::string>(p.x());
+                        s += ", ";
+                        s += boost::lexical_cast<std::string>(p.y());
+                        s += ", ";
+                        s += boost::lexical_cast<std::string>(p.z());
+                        s += ")";
+                        return s;
+                     })
+
+
     ;
 
     py::class_<Polyhedron>(m, "Polyhedron")
+                .def(py::init<>())
                 .def(py::init<P_t&>())
+                .def("make_triangle",
+                     [](Polyhedron& p)
+                     {
+                        return p.make_triangle();
+                     })
                 .def("make_triangle",
                      [](Polyhedron& p, const Point_3& p1,const Point_3& p2,const Point_3& p3)
                      {
-                        p.make_triangle(p1, p2, p3);
+                        return p.make_triangle(p1, p2, p3);
+                     })
+                .def("is_triangle",
+                     [](Polyhedron& p, Halfedge_handle h)
+                     {
+                        return p.is_triangle(h);
                      })
 
-                /*.def("delegate", [](Polyhedron & p, Modifier_base<HDS>& modifier)
-                     {
-                        p.delegate(modifier);
-                     })*/
+
     ;
 
 
