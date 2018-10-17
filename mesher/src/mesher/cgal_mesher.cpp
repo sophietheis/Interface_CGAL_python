@@ -15,17 +15,31 @@
 #include <CGAL/Polyhedron_items_3.h>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Polyhedron_incremental_builder_3.h>
+#include <CGAL/AABB_tree.h>
+#include <CGAL/AABB_traits.h>
+#include <CGAL/AABB_face_graph_triangle_primitive.h>
 
 namespace py = pybind11;
 
 using boost::lexical_cast;
 
-using K                 = CGAL::Simple_cartesian<double>;
-using P_t               = CGAL::Polyhedron_traits_3<K>;
-using P_i               = CGAL::Polyhedron_items_3;
-using Polyhedron        = CGAL::Polyhedron_3<P_t, P_i>;
-using Point_3           = K::Point_3;
-using Halfedge_handle   = Polyhedron::Halfedge_handle;
+//using K                     = CGAL::Exact_predicates_inexact_constructions_kernel;
+using K                     = CGAL::Simple_cartesian<double>;
+using Point_3               = K::Point_3;
+using Plane                 = K::Plane_3;
+using Vector                = K::Vector_3;
+using Segment               = K::Segment_3;
+using Ray                   = K::Ray_3;
+using P_t                   = CGAL::Polyhedron_traits_3<K>;
+using P_i                   = CGAL::Polyhedron_items_3;
+using Polyhedron            = CGAL::Polyhedron_3<P_t, P_i>;
+using Halfedge_handle       = Polyhedron::Halfedge_handle;
+using Primitive             = CGAL::AABB_face_graph_triangle_primitive<Polyhedron>;
+using Traits                = CGAL::AABB_traits<K, Primitive>;
+using Tree                  = CGAL::AABB_tree<Traits>;
+using Segment_intersection  = boost::optional <Tree::Intersection_and_primitive_id<Segment>::Type>;
+using Plane_intersection    = boost::optional <Tree::Intersection_and_primitive_id<Plane>::Type>;
+using Primitive_id          = Tree::Primitive_id;
 
 int get_first_integer(const char *v)
 {
@@ -100,48 +114,11 @@ std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::size_t
 
 }
 
-// Didn't work...
-template<class HDS>
-class Polyhedron_builder : public CGAL::Modifier_base<HDS> {
-public:
-    std::vector<double> &coords;
-    std::vector<int>    &tris;
-    Polyhedron_builder( std::vector<double> &_coords, std::vector<int> &_tris ) : coords(_coords), tris(_tris) {}
-    void operator()( HDS& hds) {
-        typedef typename HDS::Vertex   Vertex;
-        typedef typename Vertex::Point Point;
-
-        // create a cgal incremental builder
-        CGAL::Polyhedron_incremental_builder_3<HDS> B( hds, true);
-        B.begin_surface( coords.size()/3, tris.size()/3 );
-
-        // add the polyhedron vertices
-        for( int i=0; i<(int)coords.size(); i+=3 ){
-            B.add_vertex( Point( coords[i+0], coords[i+1], coords[i+2] ) );
-        }
-
-        // add the polyhedron triangles
-        for( int i=0; i<(int)tris.size(); i+=3 ){
-            B.begin_facet();
-            B.add_vertex_to_facet( tris[i+0] );
-            B.add_vertex_to_facet( tris[i+1] );
-            B.add_vertex_to_facet( tris[i+2] );
-            B.end_facet();
-        }
-
-        // finish up the surface
-        B.end_surface();
-    }
-};
-
 
 PYBIND11_MODULE(cgal_mesher, m)
 {
     m.def("load_obj", &load_obj);
 
-    /*py::class_<Polyhedron_builder>(m,"Polyhedron_builder")
-                .def(py::init<>())
-    ;*/
     py::class_<Halfedge_handle>(m,"Halfedge_handle")
                 .def(py::init<>())
     ;
@@ -173,26 +150,59 @@ PYBIND11_MODULE(cgal_mesher, m)
     py::class_<Polyhedron>(m, "Polyhedron")
                 .def(py::init<>())
                 .def(py::init<P_t&>())
+                //.def_property_readonly("face", &Polyhedron::Face)
                 .def("make_triangle",
                      [](Polyhedron& p)
                      {
                         return p.make_triangle();
                      })
                 .def("make_triangle",
-                     [](Polyhedron& p, const Point_3& p1,const Point_3& p2,const Point_3& p3)
+                     [](Polyhedron& p, const Point_3& p1, const Point_3& p2, const Point_3& p3)
                      {
                         return p.make_triangle(p1, p2, p3);
+                     })
+                .def("make_tetrahedron",
+                     [](Polyhedron& p, const Point_3& p1, const Point_3& p2, const Point_3& p3, const Point_3& p4)
+                     {
+                        return p.make_tetrahedron(p1, p2, p3, p4);
                      })
                 .def("is_triangle",
                      [](Polyhedron& p, Halfedge_handle h)
                      {
                         return p.is_triangle(h);
                      })
-
+                .def("is_tetrahedron",
+                     [](Polyhedron& p, Halfedge_handle h)
+                     {
+                        return p.is_tetrahedron(h);
+                     })
 
     ;
 
+    py::class_<Segment>(m,"Segment")
+                .def(py::init<>())
+                .def(py::init<Point_3,Point_3>())
 
+    ;
+
+    py::class_<Tree>(m,"Tree")
+                .def(py::init<>())
+                .def("do_intersect",
+                     [](Tree& t, Segment& q)
+                     {
+                        return t.do_intersect(q);
+                     })
+                .def("number_of_intersected_primitives",
+                     [](Tree& t, Segment& q)
+                     {
+                        return t.number_of_intersected_primitives(q);
+                     })
+                .def("any_intersection",
+                     [](Tree& t, Segment& q)
+                     {
+                        return t.any_intersection(q);
+                     })
+    ;
 
 }
 /*
