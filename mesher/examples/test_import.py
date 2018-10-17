@@ -50,9 +50,11 @@ def main():
 
     # Construct AABB_tree
     tree = Tree()
+    tree.insert(polyhedron)
+    tree.build()
     print(tree)
 
-    a = Point_3(-0.2, 0.2, -0.2)
+    a = Point_3(-0.5, 0.1, -0.1)
     #b = Point_3(-1.3, 0.2, 1.3)
     b = Point_3(1, 1, 1)
 
