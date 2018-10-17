@@ -54,10 +54,10 @@ def main():
     tree.build()
     print(tree)
 
+    # Intersect line with polyhedron
     a = Point_3(-0.5, 0.1, -0.1)
     #b = Point_3(-1.3, 0.2, 1.3)
     b = Point_3(1, 1, 1)
-
 
     segment_query = Segment(a, b)
     print(a)
@@ -70,6 +70,16 @@ def main():
 
     print(tree.number_of_intersected_primitives(
         segment_query), "intersection(s)")
+
+
+    #Distance
+    tree.accelerate_distance_queries()
+    p = Point_3(0.0, 0.0, 2.0)
+    sqd = tree.squared_distance(p)
+    print(sqd)
+
+    closest_point = tree.closest_point(p)
+    print (closest_point)
 
 
 if __name__ == '__main__':

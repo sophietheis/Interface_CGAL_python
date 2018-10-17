@@ -265,6 +265,22 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return t.any_intersection(q);
                      })
+
+                .def("accelerate_distance_queries",
+                     [](Tree& t)
+                     {
+                        t.accelerate_distance_queries();
+                     })
+                .def("squared_distance",
+                     [](Tree& t, Point_3& p)
+                     {
+                        return t.squared_distance(p);
+                     })
+                .def("closest_point",
+                     [](Tree& t, Point_3& p)
+                     {
+                        return t.closest_point(p);
+                     })
     ;
 
 }
