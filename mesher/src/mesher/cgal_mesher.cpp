@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/complex.h>
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
@@ -9,7 +10,7 @@
 #include <algorithm>
 #include <iostream>
 
-//#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Polyhedron_traits_3.h>
 #include <CGAL/Polyhedron_items_3.h>
@@ -18,13 +19,17 @@
 #include <CGAL/AABB_tree.h>
 #include <CGAL/AABB_traits.h>
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
+#include <CGAL/Nef_polyhedron_3.h>
+#include <CGAL/Exact_integer.h>
+#include <CGAL/Homogeneous.h>
 
 
 namespace py = pybind11;
 
 using boost::lexical_cast;
 
-//using K                     = CGAL::Exact_predicates_inexact_constructions_kernel;
+using K_exact               = CGAL::Exact_predicates_exact_constructions_kernel;
+using K_exact2              = CGAL::Homogeneous<CGAL::Exact_integer>;
 using K                     = CGAL::Simple_cartesian<double>;
 using Point_3               = K::Point_3;
 using Plane                 = K::Plane_3;
@@ -41,50 +46,7 @@ using Tree                  = CGAL::AABB_tree<Traits>;
 using Segment_intersection  = boost::optional <Tree::Intersection_and_primitive_id<Segment>::Type>;
 using Plane_intersection    = boost::optional <Tree::Intersection_and_primitive_id<Plane>::Type>;
 using Primitive_id          = Tree::Primitive_id;
-
-
-template <typename T>
-class TypedInputIterator
-{
-public:
-    typedef T value_type;
-    typedef T& reference;
-    typedef T* pointer;
-    typedef std::input_iterator_tag iterator_category;
-    typedef std::ptrdiff_t difference_type;
-
-    explicit TypedInputIterator(py::iterator& py_iter):
-            py_iter_(py_iter){}
-
-    explicit TypedInputIterator(py::iterator&& py_iter):
-            py_iter_(py_iter){}
-
-    value_type operator*(){
-        return (*py_iter_).template cast<value_type>();
-    }
-
-    TypedInputIterator operator++(int){
-        auto copy = *this;
-        ++py_iter_;
-        return copy;
-    }
-
-    TypedInputIterator& operator++(){
-        ++py_iter_;
-        return *this;
-    }
-
-    bool operator != (TypedInputIterator &rhs) {
-        return py_iter_ != rhs.py_iter_;
-    }
-
-    bool operator == (TypedInputIterator &rhs) {
-        return py_iter_ == rhs.py_iter_;
-    }
-
-private:
-    py::iterator py_iter_;
-};
+using Nef_polyhedron        = CGAL::Nef_polyhedron_3<K_exact2>;
 
 
 int get_first_integer(const char *v)
@@ -222,12 +184,11 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return p.is_tetrahedron(h);
                      })
-                /*.def("face_begin",
-                     [](Polyhedron& p)
-                     {
-                        p.facets_begin();
-                     })*/
+    ;
 
+    py::class_<Nef_polyhedron>(m, "Nef_polyhedron")
+                .def(py::init<>())
+                //.def(py::init<Polyhedron&>())
     ;
 
     py::class_<Segment>(m,"Segment")
@@ -255,11 +216,29 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return t.do_intersect(q);
                      })
+                /*.def("do_intersect_p",
+                     [](Tree& t, Polyhedron p)
+                     {
+                        return t.do_intersect(p);
+                     })*/
+
+
                 .def("number_of_intersected_primitives",
                      [](Tree& t, Segment& q)
                      {
                         return t.number_of_intersected_primitives(q);
                      })
+                /*.def("any_intersected_primitive",
+                     [](Tree& t, Segment& q)
+                     {
+                        return t.any_intersected_primitive(q);
+                     })
+                .def("all_intersected_primitives",
+                     [](Tree& t, Segment& q, std::list<Segment_intersection>& l)
+                     {
+                        return t.all_intersected_primitives(q, std::back_inserter(l));
+                     })*/
+
                 .def("any_intersection",
                      [](Tree& t, Segment& q)
                      {
@@ -281,6 +260,7 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return t.closest_point(p);
                      })
+
     ;
 
 }

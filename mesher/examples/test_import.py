@@ -71,6 +71,8 @@ def main():
     print(tree.number_of_intersected_primitives(
         segment_query), "intersection(s)")
 
+    list_l = list()
+    print(tree.any_intersected_primitive(segment_query))
 
     #Distance
     tree.accelerate_distance_queries()
