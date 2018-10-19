@@ -19,18 +19,20 @@
 #include <CGAL/AABB_tree.h>
 #include <CGAL/AABB_traits.h>
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
-#include <CGAL/Nef_polyhedron_3.h>
 #include <CGAL/Exact_integer.h>
 #include <CGAL/Homogeneous.h>
-
+#include <CGAL/Bbox_3.h>
+#include <CGAL/box_intersection_d.h>
+#include <CGAL/Surface_mesh.h>
+#include <CGAL/Polygon_mesh_processing/self_intersections.h>
 
 namespace py = pybind11;
 
 using boost::lexical_cast;
 
-using K_exact               = CGAL::Exact_predicates_exact_constructions_kernel;
-using K_exact2              = CGAL::Homogeneous<CGAL::Exact_integer>;
+using K_exact               = CGAL::Exact_predicates_inexact_constructions_kernel;
 using K                     = CGAL::Simple_cartesian<double>;
+using Triangle              = K::Triangle_3;
 using Point_3               = K::Point_3;
 using Plane                 = K::Plane_3;
 using Vector                = K::Vector_3;
@@ -40,13 +42,23 @@ using P_t                   = CGAL::Polyhedron_traits_3<K>;
 using P_i                   = CGAL::Polyhedron_items_3;
 using Polyhedron            = CGAL::Polyhedron_3<P_t, P_i>;
 using Halfedge_handle       = Polyhedron::Halfedge_handle;
+using Halfedge_const_handle = Polyhedron::Halfedge_const_handle;
+using Facet_const_iterator  = Polyhedron::Facet_const_iterator;
+using Facet_const_handle    = Polyhedron::Facet_const_handle;
 using Primitive             = CGAL::AABB_face_graph_triangle_primitive<Polyhedron>;
 using Traits                = CGAL::AABB_traits<K, Primitive>;
 using Tree                  = CGAL::AABB_tree<Traits>;
 using Segment_intersection  = boost::optional <Tree::Intersection_and_primitive_id<Segment>::Type>;
 using Plane_intersection    = boost::optional <Tree::Intersection_and_primitive_id<Plane>::Type>;
 using Primitive_id          = Tree::Primitive_id;
-using Nef_polyhedron        = CGAL::Nef_polyhedron_3<K_exact2>;
+
+using Mesh                  = CGAL::Surface_mesh<Point_3>;
+using face_descriptor       = boost::graph_traits<Mesh>::face_descriptor;
+using Vertex_index          = Mesh::Vertex_index;
+using Face_index            = Mesh::Face_index;
+
+
+
 
 
 int get_first_integer(const char *v)
@@ -131,6 +143,51 @@ PYBIND11_MODULE(cgal_mesher, m)
                 .def(py::init<>())
     ;
 
+    py::class_<Vertex_index>(m, "Vertex_index")
+                .def(py::init<>())
+    ;
+    py::class_<Face_index>(m, "Face_index")
+                .def(py::init<>())
+                /*.def_property_readonly("i", &Face_index::i)
+                .def("__repr__",
+                     [](const Face_index &fi)
+                     {
+                        return boost::lexical_cast<std::string>(fi.i());
+                     })*/
+    ;
+
+    py::class_<Mesh>(m, "Mesh")
+                .def(py::init<>())
+                .def(py::init<Mesh&>())
+                .def("number_of_vertices",
+                     [](Mesh& m)
+                     {
+                        return m.number_of_vertices();
+                     })
+                .def("number_of_faces",
+                     [](Mesh& m)
+                     {
+                        return m.number_of_faces();
+                     })
+                .def("add_vertex",
+                     [](Mesh& m)
+                     {
+                        return m.add_vertex();
+                     })
+                .def("add_vertex",
+                     [](Mesh& m, const Point_3& p)
+                     {
+                        return m.add_vertex(p);
+                     })
+                .def("add_face",
+                     [](Mesh& m, Vertex_index& v0, Vertex_index& v1, Vertex_index& v2)
+                     {
+                        return m.add_face(v0, v1, v2);
+                     })
+    ;
+
+
+
     py::class_<Point_3>(m,"Point_3")
                 .def(py::init<int,int,int>(), py::arg("x"), py::arg("y"), py::arg("z"))
                 .def(py::init<float,float,float>(), py::arg("x"), py::arg("y"), py::arg("z"))
@@ -159,6 +216,13 @@ PYBIND11_MODULE(cgal_mesher, m)
                 .def(py::init<>())
                 .def(py::init<P_t&>())
                 //.def_property_readonly("face", &Polyhedron::Face)
+
+                .def("size_of_facets",
+                     [](Polyhedron& p)
+                     {
+                        return p.size_of_facets();
+                     })
+
                 .def("make_triangle",
                      [](Polyhedron& p)
                      {
@@ -186,15 +250,15 @@ PYBIND11_MODULE(cgal_mesher, m)
                      })
     ;
 
-    py::class_<Nef_polyhedron>(m, "Nef_polyhedron")
-                .def(py::init<>())
-                //.def(py::init<Polyhedron&>())
-    ;
 
     py::class_<Segment>(m,"Segment")
                 .def(py::init<>())
                 .def(py::init<Point_3,Point_3>())
 
+    ;
+    py::class_<Triangle>(m, "Triangle")
+                .def(py::init<>())
+                .def(py::init<Point_3, Point_3, Point_3>())
     ;
 
     py::class_<Tree>(m,"Tree")
@@ -228,12 +292,17 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return t.number_of_intersected_primitives(q);
                      })
+                .def("number_of_intersected_primitives",
+                     [](Tree& t, Triangle& tr)
+                     {
+                        return t.number_of_intersected_primitives(tr);
+                     })
                 /*.def("any_intersected_primitive",
                      [](Tree& t, Segment& q)
                      {
                         return t.any_intersected_primitive(q);
-                     })
-                .def("all_intersected_primitives",
+                     })*/
+                /*.def("all_intersected_primitives",
                      [](Tree& t, Segment& q, std::list<Segment_intersection>& l)
                      {
                         return t.all_intersected_primitives(q, std::back_inserter(l));
@@ -243,6 +312,11 @@ PYBIND11_MODULE(cgal_mesher, m)
                      [](Tree& t, Segment& q)
                      {
                         return t.any_intersection(q);
+                     })
+                .def("any_intersection",
+                     [](Tree& t, Triangle& tr)
+                     {
+                        return t.any_intersection(tr);
                      })
 
                 .def("accelerate_distance_queries",
