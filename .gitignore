@@ -60,3 +60,11 @@ mesher/src/mesher/cgal_mesher\.html
 mesher/src/mesher/cgal_mesher\.cpython-36m-x86_64-linux-gnu\.so
 
 *.so
+
+mesher/CMakeFiles/cgal_polyhedron\.dir/CXX\.includecache
+
+mesher/CMakeFiles/cgal_polyhedron\.dir/depend\.internal
+
+mesher/CMakeFiles/Progress/3
+
+mesher/CMakeFiles/Progress/count\.txt
