@@ -167,8 +167,9 @@ def main():
     if does_self_intersect(mesh):
         print("There is at least one intersection")
         res = self_intersections(mesh)
-        print(len(res))
-        print(type(res[0]))
+        print("nombre d'intersection de face", len(res))
+        print("face0:", res[0][0], "face1:", res[0][1])
+        print(tris[res[0][0]], tris[res[0][1]])
     else:
         print("There is no intersection")
 

@@ -140,11 +140,24 @@ bool does_self_intersect (Mesh& mesh)
     return PMP::does_self_intersect(mesh, PMP::parameters::vertex_point_map(get(CGAL::vertex_point, mesh)));
 }
 
-std::vector<std::pair<face_descriptor, face_descriptor>> self_intersections(Mesh& mesh)
+//std::vector<std::pair<face_descriptor, face_descriptor>> self_intersections(Mesh& mesh)
+std::vector<std::tuple<int, int>> self_intersections(Mesh& mesh)
+
 {
     std::vector<std::pair<face_descriptor, face_descriptor>> intersected_tris;
     PMP::self_intersections(mesh, std::back_inserter(intersected_tris));
-    return intersected_tris;
+
+    std::vector<std::tuple<int, int>> list;
+    for (std::size_t i=0; i< intersected_tris.size(); i++)
+    {
+        std::tuple<int, int> tmp = std::make_tuple(intersected_tris[i].first, intersected_tris[i].second);
+
+        list.push_back(tmp);
+
+    }
+
+    return list;
+
 }
 
 
@@ -172,6 +185,7 @@ PYBIND11_MODULE(cgal_mesher, m)
                         return boost::lexical_cast<std::string>(fi.i());
                      })*/
     ;
+
 
     py::class_<Mesh>(m, "Mesh")
                 .def(py::init<>())
