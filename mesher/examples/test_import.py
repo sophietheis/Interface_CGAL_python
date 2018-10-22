@@ -1,5 +1,8 @@
 #from mesher.cgal_mesher import ConstrainedDelaunayTriangulation as CDT
-from mesher.cgal_mesher import (load_obj)
+from mesher.cgal_mesher import (load_obj,
+                                does_self_intersect,
+                                self_intersections)
+
 from mesher.cgal_mesher import (Polyhedron,
                                 Point_3,
                                 Halfedge_handle,
@@ -144,7 +147,8 @@ def main_2():
 def main():
     mesh = Mesh()
     print(mesh)
-    file_name = "examples/embryo.obj"
+    #file_name = "examples/embryo.obj"
+    file_name = "examples/embryo_intersect.obj"
 
     coords, tris = load_obj(file_name)
     print(len(coords))
@@ -160,6 +164,13 @@ def main():
                               tri[1]], list_coords_address[tri[2]])) for tri in tris]
 
     print(mesh.number_of_faces())
+    if does_self_intersect(mesh):
+        print("There is at least one intersection")
+        res = self_intersections(mesh)
+        print(len(res))
+        print(type(res[0]))
+    else:
+        print("There is no intersection")
 
 if __name__ == '__main__':
     main()

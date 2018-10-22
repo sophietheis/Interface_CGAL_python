@@ -27,6 +27,7 @@
 #include <CGAL/Polygon_mesh_processing/self_intersections.h>
 
 namespace py = pybind11;
+namespace PMP = CGAL::Polygon_mesh_processing;
 
 using boost::lexical_cast;
 
@@ -134,10 +135,26 @@ std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::size_t
 
 }
 
+bool does_self_intersect (Mesh& mesh)
+{
+    return PMP::does_self_intersect(mesh, PMP::parameters::vertex_point_map(get(CGAL::vertex_point, mesh)));
+}
+
+std::vector<std::pair<face_descriptor, face_descriptor>> self_intersections(Mesh& mesh)
+{
+    std::vector<std::pair<face_descriptor, face_descriptor>> intersected_tris;
+    PMP::self_intersections(mesh, std::back_inserter(intersected_tris));
+    return intersected_tris;
+}
+
 
 PYBIND11_MODULE(cgal_mesher, m)
 {
     m.def("load_obj", &load_obj);
+
+    m.def("does_self_intersect", &does_self_intersect);
+
+    m.def("self_intersections", &self_intersections);
 
     py::class_<Halfedge_handle>(m,"Halfedge_handle")
                 .def(py::init<>())
@@ -186,7 +203,9 @@ PYBIND11_MODULE(cgal_mesher, m)
                      })
     ;
 
+    /*py::class_<Polygon_mesh_processing>(m, "Polygon_mesh_processing")
 
+    ;*/
 
     py::class_<Point_3>(m,"Point_3")
                 .def(py::init<int,int,int>(), py::arg("x"), py::arg("y"), py::arg("z"))
