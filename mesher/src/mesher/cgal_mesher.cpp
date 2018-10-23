@@ -215,6 +215,11 @@ PYBIND11_MODULE(cgal_mesher, m)
                      {
                         return m.add_face(v0, v1, v2);
                      })
+                .def("add_face",
+                     [](Mesh& m, std::vector<Vertex_index> v)
+                     {
+                        return m.add_face(v);
+                     })
     ;
 
     /*py::class_<Polygon_mesh_processing>(m, "Polygon_mesh_processing")

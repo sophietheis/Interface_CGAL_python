@@ -147,8 +147,8 @@ def main_2():
 def main():
     mesh = Mesh()
     print(mesh)
-    #file_name = "examples/embryo.obj"
-    file_name = "examples/embryo_intersect.obj"
+    file_name = "examples/embryo1.obj"
+    #file_name = "examples/embryo_intersect.obj"
 
     coords, tris = load_obj(file_name)
     print(len(coords))
@@ -160,16 +160,23 @@ def main():
     print(mesh.number_of_vertices())
 
     list_faces_adress = []
-    [list_faces_adress.append(mesh.add_face(list_coords_address[tri[0]], list_coords_address[
+    """[list_faces_adress.append(mesh.add_face(list_coords_address[tri[0]], list_coords_address[
                               tri[1]], list_coords_address[tri[2]])) for tri in tris]
+    """
+    for tri in tris:
+        list_face = []
+        for t in tri:
+            list_face.append(list_coords_address[t])
+        list_faces_adress.append(mesh.add_face(list_face))
 
     print(mesh.number_of_faces())
+
     if does_self_intersect(mesh):
         print("There is at least one intersection")
         res = self_intersections(mesh)
-        print("nombre d'intersection de face", len(res))
+        print("nombre d'intersection", len(res))
         print("face0:", res[0][0], "face1:", res[0][1])
-        print(tris[res[0][0]], tris[res[0][1]])
+        #print(tris[res[0][0]], tris[res[0][1]])
     else:
         print("There is no intersection")
 
