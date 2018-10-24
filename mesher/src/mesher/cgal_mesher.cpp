@@ -159,6 +159,13 @@ std::vector<std::tuple<int, int>> self_intersections(Mesh& mesh)
     return list;
 
 }
+#include <CGAL/IO/Geomview_stream.h>
+void draw()
+{
+    CGAL::Geomview_stream gv(CGAL::Bbox_3(-100,-100,-100,600,600,600));
+    //gv.set_line_width(4);
+    //gv.set_bg_color(CGAL::Color(0,200,200));
+}
 
 
 PYBIND11_MODULE(cgal_mesher, m)
@@ -168,6 +175,8 @@ PYBIND11_MODULE(cgal_mesher, m)
     m.def("does_self_intersect", &does_self_intersect);
 
     m.def("self_intersections", &self_intersections);
+
+    m.def("draw", &draw);
 
     py::class_<Halfedge_handle>(m,"Halfedge_handle")
                 .def(py::init<>())
@@ -216,7 +225,7 @@ PYBIND11_MODULE(cgal_mesher, m)
                         return m.add_face(v0, v1, v2);
                      })
                 .def("add_face",
-                     [](Mesh& m, std::vector<Vertex_index> v)
+                     [](Mesh& m, std::vector<Vertex_index>& v)
                      {
                         return m.add_face(v);
                      })

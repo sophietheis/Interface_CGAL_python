@@ -1,7 +1,8 @@
 #from mesher.cgal_mesher import ConstrainedDelaunayTriangulation as CDT
 from mesher.cgal_mesher import (load_obj,
                                 does_self_intersect,
-                                self_intersections)
+                                self_intersections,
+                                draw)
 
 from mesher.cgal_mesher import (Polyhedron,
                                 Point_3,
@@ -13,6 +14,9 @@ from mesher.cgal_mesher import (Polyhedron,
                                 Vertex_index,
                                 Face_index
                                 )
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def main_1():
@@ -144,11 +148,11 @@ def main_2():
     print(cpt)
 
 
-def main():
+def main_tmp():
     mesh = Mesh()
     print(mesh)
-    file_name = "examples/embryo1.obj"
-    #file_name = "examples/embryo_intersect.obj"
+    file_name = "examples/embryo_triangle.obj"
+    file_name = "examples/embryo_intersect.obj"
 
     coords, tris = load_obj(file_name)
     print(len(coords))
@@ -175,10 +179,152 @@ def main():
         print("There is at least one intersection")
         res = self_intersections(mesh)
         print("nombre d'intersection", len(res))
-        print("face0:", res[0][0], "face1:", res[0][1])
-        #print(tris[res[0][0]], tris[res[0][1]])
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1, projection='3d')
+        for i in range(0, len(res)):
+
+            print("face0:", res[i][0], "face1:", res[i][1])
+            print(tris[res[i][0]], tris[res[i][1]])
+            for j in range(0, 3):
+                print(coords[tris[res[i][0]][j]], coords[tris[res[1][0]][j]])
+            if (0 < coords[tris[res[i][0]][0]][2] < 80 and
+                    0 < coords[tris[res[i][1]][0]][2] < 80):
+                if coords[tris[res[i][0]][0]][0] > 0:
+                    a1 = coords[tris[res[i][0]][0]]
+                    a2 = coords[tris[res[i][0]][1]]
+                    a3 = coords[tris[res[i][0]][2]]
+                    b1 = coords[tris[res[i][1]][0]]
+                    b2 = coords[tris[res[i][1]][1]]
+                    b3 = coords[tris[res[i][1]][2]]
+                else:
+                    a1 = coords[tris[res[i][1]][0]]
+                    a2 = coords[tris[res[i][1]][1]]
+                    a3 = coords[tris[res[i][1]][2]]
+                    b1 = coords[tris[res[i][0]][0]]
+                    b2 = coords[tris[res[i][0]][1]]
+                    b3 = coords[tris[res[i][0]][2]]
+
+                x = [a1[0], a2[0], a3[0], a1[0]]
+                y = [a1[1], a2[1], a3[1], a1[1]]
+                z = [a1[2], a2[2], a3[2], a1[2]]
+                ax.plot(x, y, z, color='k')
+            #print(tris[res[0][0]], tris[res[0][1]])
+                x = [b1[0], b2[0], b3[0], b1[0]]
+                y = [b1[1], b2[1], b3[1], b1[1]]
+                z = [b1[2], b2[2], b3[2], b1[2]]
+                ax.plot(x, y, z, color='red')
+        plt.show()
+
     else:
         print("There is no intersection")
 
+import os
+import time
+import numpy as np
+from pathlib import Path
+
+from tyssue import Sheet, config
+from tyssue.io import hdf5
+
+
+def triangular_to_polygonal_mesh(sheet, vertices):
+    vertices = vertices[sheet.Nf:]
+
+    sheet.vert_df[['x', 'y', 'z']] = vertices
+
+
+def import_sheet_into_Mesh(sheet, mesh):
+    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
+    list_coords_address = []
+    [list_coords_address.append(mesh.add_vertex(
+        Point_3(coord[0], coord[1], coord[2]))) for coord in vertices]
+    list_faces_adress = []
+    for face in faces:
+        list_face = []
+        [list_face.append(list_coords_address[v]) for v in face]
+        list_faces_adress.append(mesh.add_face(list_face))
+
+
+
+
+def resolve_intersection(sheet):
+    # save the previous position of vertices
+    sheet.vert_df[['x_old', 'y_old', 'z_old']] = sheet.vert_df[['x', 'y', 'z']]
+
+    """
+    ----------
+    Execute some events
+    ----------
+
+    """
+
+    # Sheet in surface mesh
+    mesh = Mesh()
+    import_sheet_into_Mesh(sheet, mesh)
+
+    if does_self_intersect(mesh):
+        print("There is at least one intersection")
+        list_intersected_faces = self_intersections(mesh)
+        print(len(list_intersected_faces))
+
+    else:
+        print("There is no interaction")
+
+
+
+
+def main():
+
+    # --------- Chargement d'un fichier HDF5 --------- #
+    SIM_DIR = Path(
+        '/media/admin-suz/Sophie/2018/Papiers-EMT-Melanie/datas/SimulationsReview/2018-06-26/')
+
+    dirname = SIM_DIR / '1.32_contractility_5_critical_area_50_radialtension/'
+    current = 'invagination_0026.hf5'
+    dsets = hdf5.load_datasets(os.path.join(dirname, current),
+                               data_names=['vert', 'edge', 'face', 'cell'])
+
+    specs = config.geometry.cylindrical_sheet()
+    sheet = Sheet('ellipse', dsets, specs)
+
+    resolve_intersection(sheet)
+
+
+
+
+    """print(sheet.vert_df.loc[0]['x'])
+    # -------- HDF5 dans mesh -------- #
+    mesh = Mesh()
+
+    # triangulation of the epithelium
+    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
+
+    vertices[sheet.Nf][0] = 22
+
+    triangular_to_polygonal_mesh(sheet, vertices)
+    print(sheet.vert_df.loc[0]['x'])
+    """
+
+    """list_coords_address = []
+    [list_coords_address.append(mesh.add_vertex(
+        Point_3(coord['x'], coord['y'], coord['z'])))
+    for  index, coord in sheet.vert_df[['x', 'y', 'z']].iterrows()]
+
+    for tri in tris:
+        list_face = []
+        for t in tri:
+            list_face.append(list_coords_address[t])
+        list_faces_adress.append(mesh.add_face(list_face))
+    """
+
+
 if __name__ == '__main__':
     main()
+
+    """fig = plt.figure()
+    ax = fig.add_subplot(1,1, 1, projection='3d')
+    ax.plot([1, 2], [1, 2], [1, 2], color='k')
+    ax.plot([2, 3], [2, 3], [1, 2], color='k')
+    ax.plot([3, 4], [3, 4], [1, 2], color='k')
+    plt.show()
+    """
