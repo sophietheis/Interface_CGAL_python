@@ -243,8 +243,7 @@ def import_sheet_into_Mesh(sheet, mesh):
         list_face = []
         [list_face.append(list_coords_address[v]) for v in face]
         list_faces_adress.append(mesh.add_face(list_face))
-
-
+    return (list_coords_address, list_face)
 
 
 def resolve_intersection(sheet):
@@ -260,17 +259,31 @@ def resolve_intersection(sheet):
 
     # Sheet in surface mesh
     mesh = Mesh()
-    import_sheet_into_Mesh(sheet, mesh)
+    l_coords, l_faces = import_sheet_into_Mesh(sheet, mesh)
 
     if does_self_intersect(mesh):
         print("There is at least one intersection")
         list_intersected_faces = self_intersections(mesh)
         print(len(list_intersected_faces))
+        for i in range(0, len(list_intersected_faces)):
+            face1 = sheet.edge_df.loc[list_intersected_faces[i][0], 'face']
+            face2 = sheet.edge_df.loc[list_intersected_faces[i][1], 'face']
+
+            if face1 != face2:
+                center_face1 = sheet.face_df.loc[face1][['x', 'y', 'z']].values
+                center_face2 = sheet.face_df.loc[face2][['x', 'y', 'z']].values
+                list_edge1 = sheet.edge_df[(sheet.edge_df.face == face1)][
+                    'srce'].values
+                list_edge2 = sheet.edge_df[(sheet.edge_df.face == face2)][
+                    'srce'].values
+
+                for edge in list_edge1:
+                    pos_e = sheet.vert_df.loc[edge][['x', 'y', 'z']].values
+                    print(pos_e)
+
 
     else:
         print("There is no interaction")
-
-
 
 
 def main():
@@ -288,9 +301,6 @@ def main():
     sheet = Sheet('ellipse', dsets, specs)
 
     resolve_intersection(sheet)
-
-
-
 
     """print(sheet.vert_df.loc[0]['x'])
     # -------- HDF5 dans mesh -------- #
