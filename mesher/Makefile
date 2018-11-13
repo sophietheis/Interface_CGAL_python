@@ -51,10 +51,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher
+CMAKE_SOURCE_DIR = . #/home/admin-suz/Documents/Code/Interface_CGAL_python/mesher
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher
+CMAKE_BINARY_DIR = . #/home/admin-suz/Documents/Code/Interface_CGAL_python/mesher
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -94,9 +94,9 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/CMakeFiles /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start $(CMAKE_SOURCE_DIR)/CMakeFiles $(CMAKE_SOURCE_DIR)/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/admin-suz/Documents/Code/Interface_CGAL_python/mesher/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start $(CMAKE_SOURCE_DIR)/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -123,19 +123,6 @@ preinstall/fast:
 depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
-
-#=============================================================================
-# Target rules for targets named cgal_polyhedron
-
-# Build rule for target.
-cgal_polyhedron: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cgal_polyhedron
-.PHONY : cgal_polyhedron
-
-# fast build rule for target.
-cgal_polyhedron/fast:
-	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/build
-.PHONY : cgal_polyhedron/fast
 
 #=============================================================================
 # Target rules for targets named cgal_mesher
@@ -626,4 +613,3 @@ help:
 cmake_check_build_system:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
-
