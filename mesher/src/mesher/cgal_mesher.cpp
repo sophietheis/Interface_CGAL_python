@@ -64,15 +64,32 @@ using Face_index            = Mesh::Face_index;
 Mesh import_sheet_into_Mesh(py::array_t<double> faces, py::array_t<double> vertices)
 {
     Mesh mesh;
-    std::cout<<vertices<<std::endl;
+
+    std::vector<int> list_vertices_address;
+    std::vector<int> list_faces_address;
 
     // scan vertices numpy array
-    py::buffer_info info_vertices=vertices.request();
-    for (int i=0; i<info_vertices.shape[0]; i=i+3)
+    py::buffer_info info_vertices = vertices.request();
+    for (int i=0; i<info_vertices.shape[0]*3; i=i+3)
     {
-        std::cout<<((double*)info_vertices.ptr)[i]<<"\t"<<((double*)info_vertices.ptr)[i+1]<<"\t"<<((double*)info_vertices.ptr)[i+2]<<std::endl;
+        list_vertices_address.push_back (mesh.add_vertex(Point_3(((double*)info_vertices.ptr)[i],
+                                ((double*)info_vertices.ptr)[i+1],
+                                ((double*)info_vertices.ptr)[i+2])));
     }
-    std::cout<<"fin import"<<std::endl;
+
+
+    // scan faces numpy array
+    py::buffer_info info_faces = faces.request();
+    for (int i=0; i<info_faces.shape[0]*3; i=i+3)
+    {
+        std::vector<int> vertice_in_face;
+
+        vertice_in_face.push_back(((double*)info_faces.ptr)[i]);
+        vertice_in_face.push_back(((double*)info_faces.ptr)[i+1]);
+        vertice_in_face.push_back(((double*)info_faces.ptr)[i+2]);
+
+        list_faces_address.push_back(mesh.add_face(vertice_in_face));
+    }
 
 
     return mesh;
