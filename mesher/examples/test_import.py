@@ -234,19 +234,6 @@ def triangular_to_polygonal_mesh(sheet, vertices):
     sheet.vert_df[['x', 'y', 'z']] = vertices
 
 
-def import_sheet_into_Mesh_python(sheet, mesh):
-    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
-    list_coords_address = []
-    [list_coords_address.append(mesh.add_vertex(
-        Point_3(coord[0], coord[1], coord[2]))) for coord in vertices]
-    list_faces_adress = []
-    for face in faces:
-        list_face = []
-        [list_face.append(list_coords_address[v]) for v in face]
-        list_faces_adress.append(mesh.add_face(list_face))
-    return (list_coords_address, list_face)
-
-
 def resolve_intersection(sheet):
     # save the previous position of vertices
     sheet.vert_df[['x_old', 'y_old', 'z_old']] = sheet.vert_df[['x', 'y', 'z']]
@@ -262,6 +249,8 @@ def resolve_intersection(sheet):
     mesh = Mesh()
     vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
     mesh = import_sheet_into_Mesh(faces, vertices)
+
+    #a, f = import_sheet_into_Mesh_python(sheet, mesh)
 
     if does_self_intersect(mesh):
         print("There is at least one intersection")
@@ -286,6 +275,7 @@ def resolve_intersection(sheet):
 
     else:
         print("There is no interaction")
+
 
 
 def main():
