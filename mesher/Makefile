@@ -125,19 +125,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named cgal_polyhedron
-
-# Build rule for target.
-cgal_polyhedron: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cgal_polyhedron
-.PHONY : cgal_polyhedron
-
-# fast build rule for target.
-cgal_polyhedron/fast:
-	$(MAKE) -f CMakeFiles/cgal_polyhedron.dir/build.make CMakeFiles/cgal_polyhedron.dir/build
-.PHONY : cgal_polyhedron/fast
-
-#=============================================================================
 # Target rules for targets named cgal_mesher
 
 # Build rule for target.

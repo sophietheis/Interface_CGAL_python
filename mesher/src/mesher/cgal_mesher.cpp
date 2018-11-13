@@ -10,8 +10,6 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
-
-#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Polyhedron_traits_3.h>
 #include <CGAL/Polyhedron_items_3.h>
@@ -32,7 +30,6 @@ namespace PMP = CGAL::Polygon_mesh_processing;
 
 using boost::lexical_cast;
 
-using K_exact               = CGAL::Exact_predicates_inexact_constructions_kernel;
 using K                     = CGAL::Simple_cartesian<double>;
 using Triangle              = K::Triangle_3;
 using Point_3               = K::Point_3;
