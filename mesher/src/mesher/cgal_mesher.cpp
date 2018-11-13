@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/numpy.h>
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
@@ -60,6 +61,22 @@ using Face_index            = Mesh::Face_index;
 
 
 
+Mesh import_sheet_into_Mesh(py::array_t<double> faces, py::array_t<double> vertices)
+{
+    Mesh mesh;
+    std::cout<<vertices<<std::endl;
+
+    // scan vertices numpy array
+    py::buffer_info info_vertices=vertices.request();
+    for (int i=0; i<info_vertices.shape[0]; i=i+3)
+    {
+        std::cout<<((double*)info_vertices.ptr)[i]<<"\t"<<((double*)info_vertices.ptr)[i+1]<<"\t"<<((double*)info_vertices.ptr)[i+2]<<std::endl;
+    }
+    std::cout<<"fin import"<<std::endl;
+
+
+    return mesh;
+}
 
 
 int get_first_integer(const char *v)
@@ -171,6 +188,8 @@ void draw()
 PYBIND11_MODULE(cgal_mesher, m)
 {
     m.def("load_obj", &load_obj);
+
+    m.def("import_sheet_into_Mesh", &import_sheet_into_Mesh);
 
     m.def("does_self_intersect", &does_self_intersect);
 

@@ -1,5 +1,6 @@
 #from mesher.cgal_mesher import ConstrainedDelaunayTriangulation as CDT
 from mesher.cgal_mesher import (load_obj,
+                                import_sheet_into_Mesh,
                                 does_self_intersect,
                                 self_intersections,
                                 draw)
@@ -233,7 +234,7 @@ def triangular_to_polygonal_mesh(sheet, vertices):
     sheet.vert_df[['x', 'y', 'z']] = vertices
 
 
-def import_sheet_into_Mesh(sheet, mesh):
+def import_sheet_into_Mesh_python(sheet, mesh):
     vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
     list_coords_address = []
     [list_coords_address.append(mesh.add_vertex(
@@ -259,7 +260,8 @@ def resolve_intersection(sheet):
 
     # Sheet in surface mesh
     mesh = Mesh()
-    l_coords, l_faces = import_sheet_into_Mesh(sheet, mesh)
+    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
+    mesh = import_sheet_into_Mesh(faces, vertices)
 
     if does_self_intersect(mesh):
         print("There is at least one intersection")
@@ -270,7 +272,7 @@ def resolve_intersection(sheet):
             face2 = sheet.edge_df.loc[list_intersected_faces[i][1], 'face']
 
             if face1 != face2:
-                center_face1 = sheet.face_df.loc[face1][['x', 'y', 'z']].values
+                center_face1 = sheet.face_df.loc[face1, ['x', 'y', 'z']].values
                 center_face2 = sheet.face_df.loc[face2][['x', 'y', 'z']].values
                 list_edge1 = sheet.edge_df[(sheet.edge_df.face == face1)][
                     'srce'].values
