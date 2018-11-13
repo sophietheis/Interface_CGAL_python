@@ -65,6 +65,7 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
                               cwd=self.build_temp)
+        print(env['CXXFLAGS'])
         print()  # Add an empty line for cleaner output
 
 
