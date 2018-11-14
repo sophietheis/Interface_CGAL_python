@@ -33,6 +33,7 @@ using Face_index            = Mesh::Face_index;
 
 Mesh import_sheet_into_Mesh(py::array_t<double> faces, py::array_t<double> vertices)
 {
+
     Mesh mesh;
 
     // scan vertices numpy array
