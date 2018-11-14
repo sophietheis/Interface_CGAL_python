@@ -1,5 +1,4 @@
-from mesher.cgal_mesher import (load_obj,
-                                import_sheet_into_Mesh,
+from mesher.cgal_mesher import (import_sheet_into_Mesh,
                                 does_self_intersect,
                                 self_intersections)
 
@@ -8,11 +7,14 @@ from mesher.cgal_mesher import (Point_3,
 
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 from pathlib import Path
-from tyssue import Sheet, config
-from tyssue.io import hdf5
+from tyssue import Sheet, config, SheetGeometry
+from tyssue.io import hdf5, obj
 from mpl_toolkits.mplot3d import *
+
+from tyssue.generation import three_faces_sheet
 
 
 def triangular_to_polygonal_mesh(sheet, vertices):
@@ -33,9 +35,14 @@ def list_intersected_facesolve_intersection(sheet):
     """
 
     # Sheet in surface mesh
-    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
-    mesh = import_sheet_into_Mesh(faces, vertices)
+    #sheet = sheet.extract_bounding_box(z_boundary=[-100, 100])
+    #sheet = sheet.extract("is_fold_patch")
 
+    vertices, faces, _ = sheet.triangular_mesh(sheet.coords)
+    vertices = np.array(vertices, order='C')
+    faces = np.array(faces, order='C')
+    mesh = import_sheet_into_Mesh(faces, vertices)
+    print(len(faces))
     if does_self_intersect(mesh):
         print("There is at least one intersection")
         list_intersected_faces = self_intersections(mesh)
@@ -84,46 +91,24 @@ def draw_ugly(list_intersected_faces, vertices, faces, ax):
 def main():
 
     # --------- Chargement d'un fichier HDF5 --------- #
-    SIM_DIR = Path(
-        '/media/admin-suz/Sophie/2018/Papiers-EMT-Melanie/datas/SimulationsReview/2018-06-26/')
 
     SIM_DIR = Path(
         '/media/admin-suz/Sophie/2018/Papiers-EMT-Melanie/datas/2018-05-29_principal_results')
-
     dirname = SIM_DIR / '1.6400000000000001_contractility_5_critical_area_75_radialtension/'
-    current = 'invagination_0027.hf5'
+    current = 'invagination_0001.hf5'
+
+    #SIM_DIR = Path('/home/admin-suz/Documents/Code/tyssue/tyssue/stores')
+    #dirname = SIM_DIR
+    #current = 'small_hexagonal.hf5'
+
+
     dsets = hdf5.load_datasets(os.path.join(dirname, current),
-                               data_names=['vert', 'edge', 'face', 'cell'])
+                               data_names=['vert', 'edge', 'face'])
 
     specs = config.geometry.cylindrical_sheet()
     sheet = Sheet('ellipse', dsets, specs)
-
+    SheetGeometry.update_all(sheet)
     list_intersected_facesolve_intersection(sheet)
-
-    """print(sheet.vert_df.loc[0]['x'])
-    # -------- HDF5 dans mesh -------- #
-    mesh = Mesh()
-
-    # triangulation of the epithelium
-    vertices, faces, _ = sheet.triangular_mesh(sheet.vertices)
-
-    vertices[sheet.Nf][0] = 22
-
-    triangular_to_polygonal_mesh(sheet, vertices)
-    print(sheet.vert_df.loc[0]['x'])
-    """
-
-    """list_vertices_addlist_intersected_facess = []
-    [list_vertices_addlist_intersected_facess.append(mesh.add_vertex(
-        Point_3(coord['x'], coord['y'], coord['z'])))
-    for  index, coord in sheet.vert_df[['x', 'y', 'z']].iterrows()]
-
-    for tri in faces:
-        list_face = []
-        for t in tri:
-            list_face.append(list_vertices_addlist_intersected_facess[t])
-        list_faces_adlist_intersected_facess.append(mesh.add_face(list_face))
-    """
 
 
 if __name__ == '__main__':
