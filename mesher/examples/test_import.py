@@ -48,6 +48,7 @@ def list_intersected_facesolve_intersection(sheet):
         print("There is at least one intersection")
         list_intersected_faces = self_intersections(mesh)
         print(len(list_intersected_faces))
+        print(list_intersected_faces[0])
         """
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
